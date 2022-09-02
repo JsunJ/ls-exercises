@@ -1,0 +1,5 @@
+/*
+DROP DATABASE xyzzy;
+*/
+
+-- DDL
