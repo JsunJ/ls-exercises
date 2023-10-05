@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .schedule-container {
+      border: solid 1px black;
+      padding: 10px;
+      margin: 15px;
+    }
+  </style>
+</head>
+<body>
+  <button id="add-schedule">Add an additional schedule</button>
+  <div class="schedules-container">
+    <div class="schedule-container">
+      <h2>Schedule 1</h2>
+      <form method="post" action="">
+        <dl>
+          <dt>
+            <label for="staff">Staff Member:</label>
+          </dt>
+          <dd>
+            <select name="staff_id"></select>
+          </dd>
+          <dt>
+            <label for="date">Date:</label>
+          </dt>
+          <dd>
+            <input id="date" name="date" placeholder="mm-dd-yy">
+          </dd>
+          <dt>
+            <label for="time">Time:</label>
+          </dt>
+          <dd>
+            <input id="time" name="time" placeholder="hh:mm">
+          </dd>
+        </dl>
+      </form>
+    </div>
+  </div>
+  <button id="submit">Submit</button>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const addButton = document.querySelector('#add-schedule');
+      const submitButton = document.querySelector('#submit');
+      let lastScheduleNumber = 1;
+
+      function loadStaffMembers() {
+        let request = new XMLHttpRequest();
+        request.open('GET', '/api/staff_members');
+        request.responseType = 'json';
+
+        request.addEventListener('load', (event) => {
+          let staff = request.response.map(staff => ({id: staff.id, name: staff.name}));
+          staff.forEach(member => {
+            let select = document.querySelector('select');
+            let option = document.createElement('option');
+            option.value = member.id;
+            option.append(member.name);
+            select.append(option);
+          });
+        });
+
+        request.send();
+      }
+
+      function cloneSchedule() {
+        lastScheduleNumber += 1;
+        let schedule = document.querySelector('.schedule-container');
+        let cloneSchedule = schedule.cloneNode(true);
+        let cloneH2 = cloneSchedule.querySelector('h2');
+        cloneH2.textContent = cloneH2.textContent.replace(/\d+/, lastScheduleNumber);
+        cloneSchedule.querySelector('form').reset();
+        document.querySelector('.schedules-container').append(cloneSchedule);
+      }
+
+      function submitScheduleData(data) {
+        let request = new XMLHttpRequest();
+        request.open('POST', '/api/schedules');
+        request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        let json = JSON.stringify(data);
+
+        request.addEventListener('load', (event) => {
+          switch(request.status) {
+            case 201:
+              alert(request.responseText);
+              let allSchedules = document.querySelectorAll('.schedule-container');
+              allSchedules.forEach((schedule, index) => {
+                if (index !== 0) schedule.remove();
+              });
+              break;
+            case 400:
+              alert(request.responseText);
+          }
+        });
+
+        request.send(json);
+      }
+
+      loadStaffMembers();
+
+      addButton.addEventListener('click', (event) => {
+        cloneSchedule();
+      });
+
+      submitButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        let schedules = document.querySelectorAll('.schedule-container');
+        let allScheduleData = { schedules: [] };
+        schedules.forEach(container => {
+          let formData = new FormData(container.querySelector('form'));
+
+          allScheduleData.schedules.push({
+            staff_id: formData.get('staff_id'),
+            date: formData.get('date'),
+            time: formData.get('time')
+          });
+        });
+
+        submitScheduleData(allScheduleData);
+      });
+    });
+  </script>
+</body>
+</html>
