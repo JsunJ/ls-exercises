@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #bookings-list > li {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bookings</h1>
+  <ul id="bookings-list">
+  </ul>
+
+  <script>
+    function bookingDateTemplate(data) {
+      const li = document.createElement('li');
+      li.textContent = data;
+      return li;
+    }
+
+    function bookingDetailsTemplate(data) {
+      const ul = document.createElement('ul');
+      data.forEach(({staffName, studentEmail, time}) => {
+        const li = document.createElement('li');
+        li.textContent = `${staffName} | ${studentEmail} | ${time}`;
+        ul.appendChild(li);
+      });
+
+      return ul;
+    }
+
+    function renderBookingDetails(node, bookingsData) {
+      const bookingsObj = bookingsData.map(booking => ({
+        staffName: booking[0],
+        studentEmail: booking[1],
+        time: booking[2]
+      }));
+
+      node.appendChild(bookingDetailsTemplate(bookingsObj));
+    }
+
+    (() => {
+      const request = new XMLHttpRequest();
+      request.open('GET', '/api/bookings');
+      request.responseType = 'json';
+      request.send();
+      request.addEventListener('load', event => {
+        const data = request.response;
+        const bookingList = document.querySelector('#bookings-list');
+        data.forEach(date => {
+          bookingList.appendChild(bookingDateTemplate(date));
+        });
+      });
+    })();
+
+    document.querySelector('#bookings-list').addEventListener('click', event => {
+      const node = event.target;
+      if (node.tagName === 'LI') {
+        if (node.childElementCount === 0) {
+          const request = new XMLHttpRequest();
+          request.open('GET', `/api/bookings/${node.textContent}`);
+          request.responseType = 'json';
+          request.send();
+          request.addEventListener('load', event => {
+            const data = request.response;
+            renderBookingDetails(node, data);
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!-- async function getList() {
+  let dates = await fetch('/api/bookings').then(res => res.json());
+  let ul = document.getElementById('list');
+  dates.forEach(date => appendLi(date, ul))
+}
+
+getList();
+
+// Gets the details from the server and appends them to the target
+function appendDetailsToLi(target) {
+  fetch(`/api/bookings/${target.textContent}`)
+    .then(res => res.json())
+    .then(json => {
+      json.forEach(details => {
+        let ul2 = document.createElement('ul');
+        target.appendChild(ul2);
+        appendLi(details.join(' | '), ul2)
+      })
+  });
+}
+
+// A function to create and append li elements, cuts down on repetitive code
+function appendLi(liText, ul) {
+  let li = document.createElement('li');
+  li.textContent = liText;
+  ul.appendChild(li);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  let ul = document.getElementById('list');
+
+  ul.addEventListener('click', e => {
+    let target = e.target;
+    if (target.tagName === 'LI') appendDetailsToLi(target);
+  })
+}) -->
