@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #newStudentForm {
+      background: #ccc;
+      padding: 15px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Schedules</h1>
+  <form method="post" action="/api/bookings">
+    <label for="id">Select a schedule</label>
+    <select name="id" id="id"></select>
+    <br>
+    <label for="student_email">Email:</label>
+    <input type="email" id="student_email" name="student_email" required>
+    <input type="submit" id="btnSubmit">
+  </form>
+
+  <script>
+    const form = document.querySelector('form');
+    let schedules;
+
+    function populateStaffDropdown(schedules) {
+      const scheduleList = document.querySelector('#id');
+      schedules.forEach(({id, staff_id, date, time}) => {
+        const row = document.createElement('option');
+        row.setAttribute('value', id);
+        row.textContent = `${staff_id} | ${date} | ${time}`;
+        scheduleList.appendChild(row);
+      });
+    }
+
+    function convertStaffIdsToNames(schedules, staffs) {
+      function getStaffName(id, staffs) {
+        return staffs.filter(staff => staff.id === id)[0].name;
+      }
+
+      schedules.forEach(schedule => {
+        schedule.staff_id = getStaffName(schedule.staff_id, staffs);
+      });
+
+      return schedules;
+    }
+
+    (() => {
+      const request = new XMLHttpRequest();
+      request.open('GET', '/api/schedules');
+      request.responseType = 'json';
+      request.send();
+      request.addEventListener('load', event => {
+        schedules = request.response;
+        schedules = schedules.filter(({student_email}) => !student_email);
+
+        let staffs = [];
+        (() => {
+          const requestTwo = new XMLHttpRequest();
+          requestTwo.open('GET', '/api/staff_members');
+          requestTwo.responseType = 'json';
+          requestTwo.send();
+          requestTwo.addEventListener('load', event => {
+            staffs = requestTwo.response;
+            schedules = convertStaffIdsToNames(schedules, staffs);
+            populateStaffDropdown(schedules);
+          });
+        })();
+      });
+    })();
+
+    function createNewStudentForm(data) {
+      const newStudentForm = document.createElement('form');
+      newStudentForm.setAttribute('method', 'post');
+      newStudentForm.setAttribute('action', '/api/students');
+      newStudentForm.setAttribute('id', 'newStudentForm');
+
+      const h1 = document.createElement('h1');
+      h1.textContent = 'Please provide new student details';
+      newStudentForm.appendChild(h1);
+
+      const emailLabel = document.createElement('label');
+      emailLabel.textContent = 'Email:';
+      emailLabel.setAttribute('for', 'email');
+      newStudentForm.appendChild(emailLabel);
+
+      const emailInput = document.createElement('input');
+      emailInput.setAttribute('type', 'email');
+      emailInput.setAttribute('name', 'email');
+      emailInput.setAttribute('id', 'email');
+      emailInput.setAttribute('value', data.email);
+      newStudentForm.appendChild(emailInput);
+      newStudentForm.appendChild(document.createElement('br'));
+
+      const nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name:';
+      nameLabel.setAttribute('for', 'name');
+      newStudentForm.appendChild(nameLabel);
+
+      const nameInput = document.createElement('input');
+      nameInput.setAttribute('type', 'text');
+      nameInput.setAttribute('name', 'name');
+      nameInput.setAttribute('id', 'name');
+      newStudentForm.appendChild(nameInput);
+      newStudentForm.appendChild(document.createElement('br'));
+
+      const bookingSequenceLabel = document.createElement('label');
+      bookingSequenceLabel.textContent = 'Booking Sequence:';
+      bookingSequenceLabel.setAttribute('for', 'booking_sequence');
+      newStudentForm.appendChild(bookingSequenceLabel);
+
+      const bookingSequenceInput = document.createElement('input');
+      bookingSequenceInput.setAttribute('type', 'text');
+      bookingSequenceInput.setAttribute('name', 'booking_sequence');
+      bookingSequenceInput.setAttribute('id', 'booking_sequence');
+      bookingSequenceInput.setAttribute('value', data.bookingSequence);
+      newStudentForm.appendChild(bookingSequenceInput);
+      newStudentForm.appendChild(document.createElement('br'));
+
+      const submitInput = document.createElement('input');
+      submitInput.setAttribute('type', 'submit');
+      newStudentForm.appendChild(submitInput);
+      document.querySelector('body').appendChild(newStudentForm);
+    }
+
+    function formDataToJson(formData) {
+      const json = {};
+      for (const pair of formData) {
+        json[pair[0]] = pair[1];
+      }
+
+      return json;
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const json = JSON.stringify(formDataToJson(formData));
+      const request = new XMLHttpRequest();
+      request.open('POST', form.action);
+      request.setRequestHeader('Content-Type', 'application/json');
+      request.send(json);
+
+      request.addEventListener('load', event => {
+        switch (request.status) {
+          case 204:
+            alert('Booked');
+            window.location.href = "./bookingTimeSlots.html";
+            break;
+          case 404:
+            alert(request.responseText);
+            {
+              let bookingSequence = request.responseText.split(':')[1].trim();
+              createNewStudentForm({email: form['student_email'].value, bookingSequence});
+            }
+            const newStudentForm = document.querySelector('#newStudentForm');
+            newStudentForm.addEventListener('submit', event => {
+              event.preventDefault();
+              const requestTwo = new XMLHttpRequest();
+              const formDataTwo = new FormData(newStudentForm);
+              const jsonTwo = JSON.stringify(formDataToJson(formDataTwo));
+              requestTwo.open('POST', newStudentForm.action);
+              requestTwo.setRequestHeader('Content-Type', 'application/json');
+              requestTwo.send(jsonTwo);
+
+              requestTwo.addEventListener('load', event => {
+                switch (requestTwo.status) {
+                  case 201:
+                    alert(requestTwo.responseText);
+                    newStudentForm.reset();
+                    formData.set('student_email', formDataTwo.get('email'));
+                    form.dispatchEvent(new Event('submit', { cancelable: true }));
+                    break;
+                  case 400:
+                    alert(requestTwo.responseText);
+                    break;
+                  case 403:
+                    alert(requestTwo.responseText);
+                }
+              });
+            });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
