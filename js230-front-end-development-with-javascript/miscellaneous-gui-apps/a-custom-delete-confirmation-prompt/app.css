@@ -1,0 +1,81 @@
+body {
+  background: #226543;
+}
+
+h1 {
+  text-align: center;
+  color: #fff;
+}
+
+#todo_list {
+  list-style: none;
+  width: 600px;
+  font-size: 20px;
+  margin: 0 auto;
+}
+
+#todo_list li {
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 2px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, .3);
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.prompt_container {
+  width: 300px;
+  height: 100px;
+  position: absolute;
+  z-index: 3;
+  background: #eee;
+  top: 150px;
+  left: 50%;
+  margin-left: -100px;
+}
+
+.prompt_container p {
+  padding: 10px;
+}
+
+.prompt_container a {
+  display: inline-block;
+  width: 50px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 2px;
+}
+
+.prompt_actions {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+}
+
+.prompt_no {
+  background: #9f1331;
+}
+
+.prompt_yes {
+  background: #289f37;
+}
