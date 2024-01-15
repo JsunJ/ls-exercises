@@ -79,3 +79,27 @@ h1 {
 .prompt_yes {
   background: #289f37;
 }
+
+.context_menu {
+  position: absolute;
+  width: 200px;
+  background: #ccc;
+  border-radius: 2px;
+}
+
+.context_menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context_menu li {
+  height: 30px;
+  padding: 10px 0 0 10px;
+  cursor: pointer;
+  border-top: 1px solid #fff;
+}
+
+.context_menu li:first-child {
+  border-top: none;
+}

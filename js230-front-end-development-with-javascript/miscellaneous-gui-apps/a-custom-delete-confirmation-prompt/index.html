@@ -15,17 +15,24 @@
   </ul>
 
   <div class="overlay hide"></div>
-  <div class="prompt_container hide" data-id="{{id}}">
+  <div class="prompt_container hide">
     <p>Are you sure you want to delete this todo?</p>
     <div class="prompt_actions">
       <a href="#" class="prompt_no">No</a>
       <a href="#" class="prompt_yes">Yes</a>
     </div>
   </div>
+  <div class="context_menu hide">
+    <ul>
+      <li>Edit Todo</li>
+      <li>Show Details</li>
+      <li class="delete">Delete</li>
+    </ul>
+  </div>
 
   <script id="todo_template" type="text/x-handlebars">
     {{#each todos}}
-    <li data-id="{{id}}">{{title}}<a href='#' class='delete'>X</a></li>
+    <li data-id="{{id}}">{{title}}</li>
     {{/each}}
   </script>
 </body>
