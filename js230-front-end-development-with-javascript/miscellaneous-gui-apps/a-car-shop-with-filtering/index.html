@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Used Cars</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js" integrity="sha512-E1dSFxg+wsfJ4HKjutk/WaCzK7S2wv1POn1RRPGh8ZK+ag9l244Vqxji3r6wgz9YBf6+vhQEYJZpSjqWFPg9gg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="whitespace-reset.css">
+</head>
+<body>
+  <header>
+    <h1>Buy Used Cars</h1>
+    <div id="filters">
+
+    </div>
+  </header>
+  <main>
+    <div id="cars">
+
+    </div>
+  </main>
+
+  <script id="filters_template" type="text/x-handlebars-template">
+    <label for="make_select">Make</label>
+    <select name="make" id="make_select">
+      <option value="">All</option>
+      {{#each makes}}
+        <option value="{{.}}">{{.}}</option>
+      {{/each}}
+    </select>
+
+    <label for="model_select">Model</label>
+    <select name="model" id="model_select">
+      <option value="">All</option>
+      {{#each models}}
+        <option value="{{.}}">{{.}}</option>
+      {{/each}}
+    </select>
+
+    <label for="price_select">Price</label>
+    <select name="price" id="price_select">
+      <option value="">Any</option>
+      {{#each prices}}
+        <option value="{{.}}">{{.}}</option>
+      {{/each}}
+    </select>
+
+    <label for="year_select">Year</label>
+    <select name="year" id="year_select">
+      <option value="">Any</option>
+      {{#each years}}
+        <option value="{{.}}">{{.}}</option>
+      {{/each}}
+    </select>
+
+    <button class="filter_btn">Filter</button>
+  </script>
+
+  <script id="cars_template" type="text/x-handlebars-template">
+    {{#each cars}}
+      {{> car_template}}
+    {{/each}}
+  </script>
+
+  <script id="car_template" type="text/x-handlebars-template">
+    <div class="car">
+      <figure>
+        <img src="{{image}}" alt="{{make}} {{model}}">
+      </figure>
+      <h2>{{make}} {{model}}</h2>
+      <p class="year">Year: {{year}}</p>
+      <p class="price">Price: ${{price}}</p>
+      <a href="#">Buy</a>
+    </div>
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
