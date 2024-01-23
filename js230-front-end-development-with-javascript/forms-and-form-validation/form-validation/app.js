@@ -47,6 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function tabForward(event) {
+    let input = event.target;
+    if (input.value.length === 4) {
+      let inputs = [...input.parentElement.querySelectorAll('input')];
+      let index = inputs.findIndex(el => el.id === input.id);
+      inputs[index + 1].focus();
+    }
+  }
+
   inputs.forEach(input => {
     input.addEventListener('focusout', validateInput);
     input.addEventListener('invalid', setInvalid);
@@ -61,6 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (input.name === 'credit_card' || input.name === 'phone') {
       input.addEventListener('keydown', blockNonNumerical);
+    }
+
+    if (input.id === 'cc1' || input.id === 'cc2' || input.id === 'cc3') {
+      input.addEventListener('keyup', tabForward);
     }
   });
 
