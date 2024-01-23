@@ -4,9 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function validateInput(event) {
     let input = event.target;
+    let errorMessage = input.parentElement.querySelector('.error_message');
     if (input.checkValidity()) {
       input.classList.remove('invalid_field');
-      input.nextElementSibling.innerText = '';
+      errorMessage.innerText = '';
     }
 
     if ([...inputs].every(input => input.checkValidity())) {
@@ -16,13 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setInvalid(event) {
     let input = event.target;
+    let errorMessage = input.parentElement.querySelector('.error_message');
     let inputName = event.target.parentElement.previousElementSibling.innerText;
 
     input.classList.add('invalid_field');
     if (input.hasAttribute('required') && input.value === '') {
-      input.nextElementSibling.innerText = `${inputName} is a required field.`;
+      errorMessage.innerText = `${inputName} is a required field.`;
     } else {
-      input.nextElementSibling.innerText = `Please enter a valid ${inputName}.`;
+      errorMessage.innerText = `Please enter a valid ${inputName}.`;
     }
   }
 
@@ -33,12 +35,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function blockNonAlphabetical(event) {
+    if (!event.key.match(/[a-zA-Z'\s]/) && event.key.length === 1) {
+      event.preventDefault();
+    }
+  }
+
+  function blockNonNumerical(event) {
+    if (!event.key.match(/[\d-]/) && event.key.length === 1) {
+      event.preventDefault();
+    }
+  }
+
   inputs.forEach(input => {
     input.addEventListener('focusout', validateInput);
     input.addEventListener('invalid', setInvalid);
     input.addEventListener('focus', event => {
-      input.nextElementSibling.innerText = '';
+      let errorMessage = input.parentElement.querySelector('.error_message');
+      errorMessage.innerText = '';
     });
+    
+    if (input.name === 'first_name' || input.name === 'last_name') {
+      input.addEventListener('down', blockNonAlphabetical);
+    }
+
+    if (input.name === 'credit_card' || input.name === 'phone') {
+      input.addEventListener('keydown', blockNonNumerical);
+    }
   });
 
   form.addEventListener('submit', submitForm);
