@@ -29,10 +29,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function submitForm(event) {
+    event.preventDefault();
+    let keyValuePairs = [];
+    let creditCardValue = '';
+    let data;
+    let serializedDiv = document.querySelector('.serialized');
+
     if (![...inputs].every(input => input.checkValidity())) {
-      event.preventDefault();
       form.firstElementChild.innerText = 'Form cannot be submitted until errors are corrected.';
+    } else {
+      inputs.forEach(input => {
+        let key = encodeURIComponent(input.name);
+        let value = encodeURIComponent(input.value);
+
+        if (input.name !== 'credit_card') {
+          keyValuePairs.push(`${key}=${value}`);
+        } else {
+          creditCardValue += value ? value : '';
+        }
+      });
     }
+    
+    keyValuePairs.push(`${encodeURIComponent('credit_card')}=${encodeURIComponent(creditCardValue)}`);
+    data = keyValuePairs.join('&');
+
+    // data = new FormData(event.target);
+    // creditCardValue = data.getAll('credit_card').join('');
+    // data.set('credit_card', creditCardValue);
+    // let queryString = new URLSearchParams(data).toString();
+
+
+    let p = document.createElement('p');
+    p.innerText = data;
+    serializedDiv.insertAdjacentElement('beforeend', p);
   }
 
   function blockNonAlphabetical(event) {

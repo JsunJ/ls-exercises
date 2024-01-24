@@ -67,3 +67,23 @@ button {
 #cc1, #cc2, #cc3, #cc4 {
   width: 65px;
 }
+
+.serialized {
+  width: 800px;
+  margin: 30px auto 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  
+}
+
+.serialized h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.serialized p {
+  padding: 20px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
